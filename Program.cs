@@ -1,12 +1,21 @@
-﻿namespace LLSJ_Project_Alpha
+﻿using System.Globalization;
+
+namespace LLSJ_Project_Alpha
 {
     public class Program
     {
         public static void Main()
         {
-            Item apple = new Item("Apple", "An apple is a round, edible fruit with crisp flesh, thin red, green, or yellow skin, and a small central core containing seeds. It ranges in flavor from sweet to tart and is widely grown on apple trees worldwide.");
+            Item apple = new Item("Apple",
+                "An apple... That's it really.");
             Inventory inventory = new Inventory();
-            inventory.AddItemToInventory(apple, 1);
+            Item stoneSword = new Item("Stone sword","This stone sword isn't very good...");
+            Potion healingPotion = new Potion("Healing potion", "This potion will heal 4 points", 4);
+            Potion poisonPotion = new Potion("Poison potion", "This potion will remove 2 points", -2);
+            inventory.AddItemToInventory(stoneSword, 1);
+            inventory.AddItemToInventory(apple, 3);
+            inventory.AddItemToInventory(healingPotion, 3);
+           
             inventory.ShowInventory();
         }
     }
