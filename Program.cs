@@ -1,10 +1,18 @@
-﻿namespace LLSJProjectAlpha
+using LLSJ_Project_Alpha.Entities;
+
+namespace LLSJProjectAlpha
 {
     public class Program
     {
         public static void Main()
         {
-            
+            // Testing new player class
+            Player player = new Player();
+            player.name = "john";
+
+            Console.WriteLine(player.name);
+            Console.WriteLine($"Current health: {player.currentHitPoints}");
+            Console.WriteLine($"Current health: {player.maximumHitPoints}");
         }
     }
 
