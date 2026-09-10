@@ -1,3 +1,4 @@
+namespace LLSJProjectAlpha;
 public static class World
 {
 
