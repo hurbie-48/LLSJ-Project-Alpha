@@ -1,3 +1,5 @@
+using LLSJ_Project_Alpha.Entities;
+
 namespace LLSJProjectAlpha;
 
 public class Location
