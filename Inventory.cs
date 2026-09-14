@@ -11,41 +11,28 @@ public class Inventory
     {
         for (int i = 0; i < amountToAdd; i++)
         {
-            if (Items.Count < maxItems)
+            if (Items.Count >= maxItems)
             {
-                Items.Add(itemToAdd);
-            }
-            else
-            {
-                Console.ForegroundColor = ConsoleColor.Red;
-                Console.WriteLine($"Cannot add {itemToAdd.name}: Item capacity full ({maxItems}/{maxItems}).");
-                Console.ResetColor();
+                PrintColored(ConsoleColor.Red, $"Cannot add {itemToAdd.name}: Item capacity full ({maxItems}/{maxItems}).");
                 break;
             }
+            Items.Add(itemToAdd);
         }
     }
-    
+
     public void AddItemToInventory(Potion potionToAdd, int amountToAdd)
     {
         for (int i = 0; i < amountToAdd; i++)
         {
-            if (Potions.Count < maxPotions)
+            if (Potions.Count >= maxPotions)
             {
-                Potions.Add(potionToAdd);
-            }
-            else
-            {
-                Console.ForegroundColor = ConsoleColor.Red;
-                Console.WriteLine($"Cannot add {potionToAdd.name}: Potion capacity full ({maxPotions}/{maxPotions}).");
-                Console.ResetColor();
+                PrintColored(ConsoleColor.Red, $"Cannot add {potionToAdd.name}: Potion capacity full ({maxPotions}/{maxPotions}).");
                 break;
             }
+            Potions.Add(potionToAdd);
         }
     }
-    string FormatCount(int count, string singular, string plural)
-    {
-        return $"{count} {(count == 1 ? singular : plural)}";
-    }
+
     public void ShowInventory()
     {
         int remainingItems = maxItems - Items.Count;
@@ -53,56 +40,52 @@ public class Inventory
 
         if (Items.Count == 0 && Potions.Count == 0)
         {
-            Console.ForegroundColor = ConsoleColor.DarkYellow;
-            Console.WriteLine("Your inventory is completely empty!");
-            Console.ForegroundColor = ConsoleColor.Gray;
-            Console.WriteLine($"You can carry up to {remainingItems} more item(s) and {remainingPotions} more potion(s).");
-            Console.ResetColor();
+            PrintColored(ConsoleColor.DarkYellow, "Your inventory is completely empty!");
+            PrintColored(ConsoleColor.Gray, $"You can carry up to {remainingItems} more item(s) and {remainingPotions} more potion(s).");
             return;
         }
 
-        Console.ForegroundColor = ConsoleColor.DarkGray;
-        Console.WriteLine(new string('-', 85));
-        
-        Console.ForegroundColor = ConsoleColor.Yellow;
-        Console.WriteLine($"| {"Category",-10} | {"Name",-18} | {"Qty",-5} | {"Description",-40} |");
-        
-        Console.ForegroundColor = ConsoleColor.DarkGray;
-        Console.WriteLine(new string('-', 85));
+        string separator = new string('-', 85);
+        PrintLine(ConsoleColor.DarkGray, separator);
+        PrintLine(ConsoleColor.Yellow, $"| {"Category",-10} | {"Name",-18} | {"Qty",-5} | {"Description",-40} |");
+        PrintLine(ConsoleColor.DarkGray, separator);
 
-        if (Items.Count > 0)
+        foreach (var group in Items.GroupBy(i => i.name))
         {
-            var itemGroups = Items.GroupBy(i => i.name);
-            foreach (var group in itemGroups)
-            {
-                var sample = group.First();
-                Console.ForegroundColor = ConsoleColor.Cyan;
-                Console.WriteLine($"| {"Item",-10} | {sample.name,-18} | x{group.Count(),-5} | {Truncate(sample.description, 40),-40} |");
-            }
+            var sample = group.First();
+            PrintLine(ConsoleColor.Cyan, $"| {"Item",-10} | {sample.name,-18} | x{group.Count(),-5} | {Truncate(sample.description, 40),-40} |");
         }
 
-        if (Potions.Count > 0)
+        foreach (var group in Potions.GroupBy(p => p.name))
         {
-            var potionGroups = Potions.GroupBy(p => p.name);
-            foreach (var group in potionGroups)
-            {
-                var sample = group.First();
-                Console.ForegroundColor = ConsoleColor.Magenta;
-                Console.WriteLine($"| {"Potion",-10} | {sample.name,-18} | x{group.Count(),-5} | {Truncate(sample.description, 40),-40} |");
-            }
+            var sample = group.First();
+            PrintLine(ConsoleColor.Magenta, $"| {"Potion",-10} | {sample.name,-18} | x{group.Count(),-5} | {Truncate(sample.description, 40),-40} |");
         }
 
-        Console.ForegroundColor = ConsoleColor.DarkGray;
-        Console.WriteLine(new string('-', 85));
+        PrintLine(ConsoleColor.DarkGray, separator);
 
         Console.ForegroundColor = ConsoleColor.Green;
         Console.Write("Inventory Space Left: ");
         Console.ForegroundColor = ConsoleColor.White;
-        string itemText = FormatCount(remainingItems, "item", "items");
-        string potionText = FormatCount(remainingPotions, "potion", "potions");
-
-        Console.WriteLine($"You can still carry {itemText} and {potionText}.\n");        Console.ResetColor();
+        Console.WriteLine($"You can still carry {FormatCount(remainingItems, "item", "items")} and {FormatCount(remainingPotions, "potion", "potions")}.\n");
+        Console.ResetColor();
     }
+
+    private void PrintLine(ConsoleColor color, string text)
+    {
+        Console.ForegroundColor = color;
+        Console.WriteLine(text);
+    }
+
+    private void PrintColored(ConsoleColor color, string text)
+    {
+        Console.ForegroundColor = color;
+        Console.WriteLine(text);
+        Console.ResetColor();
+    }
+
+    private string FormatCount(int count, string singular, string plural)
+        => $"{count} {(count == 1 ? singular : plural)}";
 
     private string Truncate(string text, int maxLength)
     {
