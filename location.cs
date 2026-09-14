@@ -1,3 +1,6 @@
+using LLSJ_Project_Alpha.Entities;
+using LLSJ_Project_Alpha.Quest;
+
 namespace LLSJProjectAlpha;
 
 public class Location
