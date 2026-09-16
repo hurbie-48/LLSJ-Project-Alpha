@@ -22,9 +22,6 @@ namespace LLSJProjectAlpha
             monster.maximumDamage = 3;
             monster.maximumHitPoints = 25;
             monster.currentHitPoints = 25;
-            Quest quest1 = new Quest(1, "Test quest", "This is a test!");
-            Location home = new Location(1, "Home", "This is my home", quest1, monster);
-            
 
             Console.WriteLine($"Monster: {monster.name}");
             Console.WriteLine($"Damage: {monster.maximumDamage}");
@@ -33,10 +30,12 @@ namespace LLSJProjectAlpha
 
             // --- Movement demo ---
             // Starts the player at World's home location and lets them walk the
-            // real map (World.Locations) until they type "quit".
+            // real map (World.Locations), with a compass shown at every stop,
+            // until they type "quit".
             // Once your Player class has a CurrentLocation property, replace this with:
             //   player.CurrentLocation = MoveLocation.ExploreLoop(player.CurrentLocation);
-            MoveLocation.ExploreLoop(home);
+            Location startingLocation = World.LocationByID(World.LOCATION_ID_HOME)!;
+            MoveLocation.ExploreLoop(startingLocation);
         }
     }
 }
