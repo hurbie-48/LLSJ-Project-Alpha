@@ -6,7 +6,7 @@ namespace LLSJProjectAlpha;
 // - running a simple "explore" loop that a Player can use to walk the map
 public static class MoveLocation
 {
-    // Resolves the Location that lies in the given direction from currentLocation.
+    public static readonly List<string> ValidDirections = new List<string> { "north", "n", "east", "e", "south", "s", "west", "w" };
     // Returns null if the direction is unrecognised or there is nothing that way.
     public static Location? Move(Location currentLocation, string? direction)
     {
@@ -57,6 +57,7 @@ public static class MoveLocation
         return exits;
     }
 
+    // Prints the directions the player can currently travel in.
     // Prints the directions the player can currently travel in.
     public static void ShowAvailableDirections(Location location)
     {
@@ -150,10 +151,6 @@ public static class MoveLocation
         Console.ResetColor();
     }
 
-    // Attempts to move from currentLocation in the given direction.
-    // On success: prints the new location and returns it.
-    // On failure: prints a clear error and returns currentLocation unchanged,
-    // so callers can always just do `location = MoveLocation.TryMove(location, input);`
     public static Location TryMove(Location currentLocation, string? direction)
     {
         if (string.IsNullOrWhiteSpace(direction))
@@ -168,12 +165,28 @@ public static class MoveLocation
 
         if (destination == null)
         {
+            if (ValidDirections.Contains(direction.Trim().ToLower()))
+            {
+                string fullDirectionName = direction.Trim().ToLower() switch
+                {
+                    "north" or "n" => "North",
+                    "east" or "e" => "East",
+                    "south" or "s" => "South",
+                    "west" or "w" => "West",
+                    _ => direction.Trim()
+                };
+
+                Console.ForegroundColor = ConsoleColor.Red;
+                Console.WriteLine($"You cannot go {fullDirectionName}!");
+                Console.ResetColor();
+                return currentLocation;
+            }
             Console.ForegroundColor = ConsoleColor.Red;
-            Console.WriteLine($"You can't go {direction.Trim().ToLower()} from here.");
+            Console.WriteLine($"{direction.Trim()} is an invalid input!");
             Console.ResetColor();
             return currentLocation;
         }
-
+        
         Console.ForegroundColor = ConsoleColor.Green;
         Console.WriteLine($"You travel {direction.Trim().ToLower()} to {destination.Name}.");
         Console.ResetColor();
@@ -185,10 +198,6 @@ public static class MoveLocation
         return destination;
     }
 
-    // A minimal console loop that lets the player walk around the map
-    // starting at startingLocation. Type "quit" to stop exploring.
-    // Returns the location the player ended up at, so it can be stored
-    // back onto the Player object (e.g. player.CurrentLocation = ...).
     public static Location ExploreLoop(Location startingLocation)
     {
         Location currentLocation = startingLocation;
@@ -196,6 +205,7 @@ public static class MoveLocation
 
         while (exploring)
         {
+            Console.Clear();
             Console.WriteLine();
             Console.ForegroundColor = ConsoleColor.Yellow;
             Console.WriteLine($"You are at: {currentLocation.Name}");
@@ -214,9 +224,21 @@ public static class MoveLocation
                 continue;
             }
 
+            Location before = currentLocation;
             currentLocation = TryMove(currentLocation, input);
+
+            if (ReferenceEquals(currentLocation, before))
+            {
+                Console.WriteLine();
+                Console.ForegroundColor = ConsoleColor.DarkGray;
+                Console.WriteLine("Clearing in 3 seconds...");
+                Console.ResetColor();
+                Thread.Sleep(3000);
+            }
         }
 
         return currentLocation;
     }
+
+    
 }
