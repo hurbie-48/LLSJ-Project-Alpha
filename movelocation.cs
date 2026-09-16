@@ -79,6 +79,77 @@ public static class MoveLocation
         Console.ResetColor();
     }
 
+    // Draws a small ASCII compass (N/E/S/W) for the given location, lighting up
+    // whichever directions actually lead somewhere and naming the destination.
+    public static void ShowCompass(Location location)
+    {
+        var exits = GetAvailableExits(location);
+
+        string northLabel = exits.ContainsKey("North") ? "N" : "-";
+        string southLabel = exits.ContainsKey("South") ? "S" : "-";
+        string eastLabel = exits.ContainsKey("East") ? "E" : "-";
+        string westLabel = exits.ContainsKey("West") ? "W" : "-";
+
+        Console.WriteLine();
+        Console.WriteLine("     COMPASS");
+        Console.WriteLine("     -------");
+        Console.Write("        ");
+        WriteDirectionLetter(northLabel, exits.ContainsKey("North"));
+        Console.WriteLine();
+        Console.WriteLine("        |");
+        WriteDirectionLetter(westLabel, exits.ContainsKey("West"));
+        Console.Write(" ----- + ----- ");
+        WriteDirectionLetter(eastLabel, exits.ContainsKey("East"));
+        Console.WriteLine();
+        Console.WriteLine("        |");
+        Console.Write("        ");
+        WriteDirectionLetter(southLabel, exits.ContainsKey("South"));
+        Console.WriteLine();
+        Console.WriteLine();
+
+        if (exits.Count == 0)
+        {
+            Console.ForegroundColor = ConsoleColor.DarkYellow;
+            Console.WriteLine("There are no paths leading away from here.");
+            Console.ResetColor();
+            return;
+        }
+
+        WriteCompassLegendLine("North", exits);
+        WriteCompassLegendLine("East", exits);
+        WriteCompassLegendLine("South", exits);
+        WriteCompassLegendLine("West", exits);
+        Console.WriteLine();
+    }
+
+    // Writes a single cardinal-direction letter (N/E/S/W), lit up in green when
+    // it leads somewhere and dimmed to dark gray when it's a dead end.
+    private static void WriteDirectionLetter(string letter, bool available)
+    {
+        Console.ForegroundColor = available ? ConsoleColor.Green : ConsoleColor.DarkGray;
+        Console.Write(letter);
+        Console.ResetColor();
+    }
+
+    // Writes one line of the compass legend, e.g. "  N -> Town square" or a
+    // dimmed "  N -> (nothing this way)" when that direction is blocked.
+    private static void WriteCompassLegendLine(string direction, Dictionary<string, Location> exits)
+    {
+        string letter = direction[0].ToString();
+
+        if (exits.TryGetValue(direction, out var destination))
+        {
+            Console.ForegroundColor = ConsoleColor.Green;
+            Console.WriteLine($"  {letter} ({direction}) -> {destination.Name}");
+        }
+        else
+        {
+            Console.ForegroundColor = ConsoleColor.DarkGray;
+            Console.WriteLine($"  {letter} ({direction}) -> (nothing this way)");
+        }
+        Console.ResetColor();
+    }
+
     // Attempts to move from currentLocation in the given direction.
     // On success: prints the new location and returns it.
     // On failure: prints a clear error and returns currentLocation unchanged,
@@ -107,6 +178,9 @@ public static class MoveLocation
         Console.WriteLine($"You travel {direction.Trim().ToLower()} to {destination.Name}.");
         Console.ResetColor();
         Console.WriteLine(destination.Description);
+        Console.ForegroundColor = ConsoleColor.Yellow;
+        Console.WriteLine($">>> Current location: {destination.Name} <<<");
+        Console.ResetColor();
 
         return destination;
     }
@@ -128,7 +202,7 @@ public static class MoveLocation
             Console.ResetColor();
             Console.WriteLine(currentLocation.Description);
 
-            ShowAvailableDirections(currentLocation);
+            ShowCompass(currentLocation);
 
             Console.WriteLine("Enter a direction to move, or 'quit' to stop exploring.");
             Console.Write("> ");
