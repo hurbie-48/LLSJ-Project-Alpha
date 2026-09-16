@@ -1,5 +1,4 @@
 using LLSJ_Project_Alpha.Entities;
-using LLSJ_Project_Alpha.Quest;
 
 namespace LLSJProjectAlpha
 {
@@ -22,21 +21,52 @@ namespace LLSJProjectAlpha
             monster.maximumDamage = 3;
             monster.maximumHitPoints = 25;
             monster.currentHitPoints = 25;
-            Quest quest1 = new Quest(1, "Test quest", "This is a test!");
-            Location home = new Location(1, "Home", "This is my home", quest1, monster);
-            
 
             Console.WriteLine($"Monster: {monster.name}");
             Console.WriteLine($"Damage: {monster.maximumDamage}");
             Console.WriteLine($"Max health: {monster.maximumHitPoints}");
             Console.WriteLine($"current health: {monster.currentHitPoints}");
-
-            // --- Movement demo ---
-            // Starts the player at World's home location and lets them walk the
-            // real map (World.Locations) until they type "quit".
-            // Once your Player class has a CurrentLocation property, replace this with:
-            //   player.CurrentLocation = MoveLocation.ExploreLoop(player.CurrentLocation);
-            MoveLocation.ExploreLoop(home);
         }
     }
+
+    public class MoveLocation()
+    {
+        public static Location Move(Location currentLocation, string direction)
+        {
+            if (currentLocation == null || direction == null)
+            {
+                return null;
+            }
+
+            switch (direction.Trim().ToLower())
+            {
+                case "north":
+                case "n":
+                    return currentLocation.LocationToNorth;
+
+                case "south":
+                case "s":
+                    return currentLocation.LocationToSouth;
+
+                case "east":
+                case "e":
+                    return currentLocation.LocationToEast;
+
+                case "west":
+                case "w":
+                    return currentLocation.LocationToWest;
+
+                default:
+                    return null;
+            }
+        }
+
+        // Geeft aan of er in de opgegeven richting daadwerkelijk een locatie is om naartoe te gaan.
+        public static bool CanMove(Location currentLocation, string direction)
+        {
+            return Move(currentLocation, direction) != null;
+        }
+    }
+
+
 }

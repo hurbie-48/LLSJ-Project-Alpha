@@ -2,18 +2,15 @@
 {
     public class Quest
     {
-        public int ID;
+        public int Id;
         public readonly string Name, Description;
         public bool IsCompleted;
         public Dictionary<string, int> Rewards;
 
-        public Quest(int id, string name, string description)
+        public Quest()
         {
-            ID = id;
-            Name = name;
-            Description = description;
-            IsCompleted = false;
-            Rewards = new Dictionary<string, int>();
+            bool IsCompleted = false;
+            Dictionary<string, int> Rewards = new Dictionary<string, int> { };
         }
 
         public void GiveQuest()
