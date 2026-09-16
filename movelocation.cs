@@ -1,0 +1,148 @@
+namespace LLSJProjectAlpha;
+
+// Handles everything related to moving between Locations:
+// - listing which directions are currently open
+// - resolving a typed direction into a Location
+// - running a simple "explore" loop that a Player can use to walk the map
+public static class MoveLocation
+{
+    // Resolves the Location that lies in the given direction from currentLocation.
+    // Returns null if the direction is unrecognised or there is nothing that way.
+    public static Location? Move(Location currentLocation, string? direction)
+    {
+        if (currentLocation == null || string.IsNullOrWhiteSpace(direction))
+        {
+            return null;
+        }
+
+        switch (direction.Trim().ToLower())
+        {
+            case "north":
+            case "n":
+                return currentLocation.LocationToNorth;
+
+            case "south":
+            case "s":
+                return currentLocation.LocationToSouth;
+
+            case "east":
+            case "e":
+                return currentLocation.LocationToEast;
+
+            case "west":
+            case "w":
+                return currentLocation.LocationToWest;
+
+            default:
+                return null;
+        }
+    }
+
+    // True if there is a real location in the given direction.
+    public static bool CanMove(Location currentLocation, string? direction)
+    {
+        return Move(currentLocation, direction) != null;
+    }
+
+    // All directions that currently lead somewhere, keyed by their display name.
+    public static Dictionary<string, Location> GetAvailableExits(Location location)
+    {
+        var exits = new Dictionary<string, Location>();
+
+        if (location.LocationToNorth != null) exits["North"] = location.LocationToNorth;
+        if (location.LocationToEast != null) exits["East"] = location.LocationToEast;
+        if (location.LocationToSouth != null) exits["South"] = location.LocationToSouth;
+        if (location.LocationToWest != null) exits["West"] = location.LocationToWest;
+
+        return exits;
+    }
+
+    // Prints the directions the player can currently travel in.
+    public static void ShowAvailableDirections(Location location)
+    {
+        var exits = GetAvailableExits(location);
+
+        if (exits.Count == 0)
+        {
+            Console.ForegroundColor = ConsoleColor.DarkYellow;
+            Console.WriteLine("There are no paths leading away from here.");
+            Console.ResetColor();
+            return;
+        }
+
+        Console.ForegroundColor = ConsoleColor.Cyan;
+        Console.WriteLine("You can go:");
+        foreach (var exit in exits)
+        {
+            Console.WriteLine($"  {exit.Key} -> {exit.Value.Name}");
+        }
+        Console.ResetColor();
+    }
+
+    // Attempts to move from currentLocation in the given direction.
+    // On success: prints the new location and returns it.
+    // On failure: prints a clear error and returns currentLocation unchanged,
+    // so callers can always just do `location = MoveLocation.TryMove(location, input);`
+    public static Location TryMove(Location currentLocation, string? direction)
+    {
+        if (string.IsNullOrWhiteSpace(direction))
+        {
+            Console.ForegroundColor = ConsoleColor.Red;
+            Console.WriteLine("Please enter a direction: north, south, east or west.");
+            Console.ResetColor();
+            return currentLocation;
+        }
+
+        Location? destination = Move(currentLocation, direction);
+
+        if (destination == null)
+        {
+            Console.ForegroundColor = ConsoleColor.Red;
+            Console.WriteLine($"You can't go {direction.Trim().ToLower()} from here.");
+            Console.ResetColor();
+            return currentLocation;
+        }
+
+        Console.ForegroundColor = ConsoleColor.Green;
+        Console.WriteLine($"You travel {direction.Trim().ToLower()} to {destination.Name}.");
+        Console.ResetColor();
+        Console.WriteLine(destination.Description);
+
+        return destination;
+    }
+
+    // A minimal console loop that lets the player walk around the map
+    // starting at startingLocation. Type "quit" to stop exploring.
+    // Returns the location the player ended up at, so it can be stored
+    // back onto the Player object (e.g. player.CurrentLocation = ...).
+    public static Location ExploreLoop(Location startingLocation)
+    {
+        Location currentLocation = startingLocation;
+        bool exploring = true;
+
+        while (exploring)
+        {
+            Console.WriteLine();
+            Console.ForegroundColor = ConsoleColor.Yellow;
+            Console.WriteLine($"You are at: {currentLocation.Name}");
+            Console.ResetColor();
+            Console.WriteLine(currentLocation.Description);
+
+            ShowAvailableDirections(currentLocation);
+
+            Console.WriteLine("Enter a direction to move, or 'quit' to stop exploring.");
+            Console.Write("> ");
+            string? input = Console.ReadLine();
+
+            if (input != null && input.Trim().ToLower() is "quit" or "exit")
+            {
+                exploring = false;
+                continue;
+            }
+
+            currentLocation = TryMove(currentLocation, input);
+        }
+
+        return currentLocation;
+    }
+}
