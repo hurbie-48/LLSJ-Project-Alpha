@@ -1,5 +1,4 @@
 ﻿using LLSJ_Project_Alpha.Entities;
-using LLSJ_Project_Alpha.Quest;
 
 namespace LLSJProjectAlpha
 {
@@ -10,24 +9,11 @@ namespace LLSJProjectAlpha
             Console.Clear();
             ShowIntro();
 
-            // Testing new player class
+            // Creating new Player instance
             Player player = new Player();
             player.Name = AskForPlayerName();
             player.CurrentHitPoints = 100;
             player.MaximumHitPoints = 100;
-
-            // Test for monster class
-            Monster monster = new Monster();
-            monster.id = 1;
-            monster.name = "Rat";
-            monster.maximumDamage = 3;
-            monster.maximumHitPoints = 25;
-            monster.currentHitPoints = 25;
-
-            Console.WriteLine($"Monster: {monster.name}");
-            Console.WriteLine($"Damage: {monster.maximumDamage}");
-            Console.WriteLine($"Max health: {monster.maximumHitPoints}");
-            Console.WriteLine($"current health: {monster.currentHitPoints}");
             Location startingLocation = World.LocationByID(World.LOCATION_ID_HOME)!;
             MoveLocation.ExploreLoop(startingLocation, player);
         }
