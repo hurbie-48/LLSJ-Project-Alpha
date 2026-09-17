@@ -1,6 +1,6 @@
 namespace LLSJ_Project_Alpha.Entities
 {
-    public class Player
+    public partial class Player
     {
         public string name;
         public int currentHitPoints, maximumHitPoints;

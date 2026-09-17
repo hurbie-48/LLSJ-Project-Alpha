@@ -1,3 +1,4 @@
+using LLSJ_Project_Alpha.Entities;
 namespace LLSJProjectAlpha;
 
 // Handles everything related to moving between Locations:
@@ -6,7 +7,9 @@ namespace LLSJProjectAlpha;
 // - running a simple "explore" loop that a Player can use to walk the map
 public static class MoveLocation
 {
-    public static readonly List<string> ValidDirections = new List<string> { "north", "n", "east", "e", "south", "s", "west", "w" };
+    public static readonly List<string> ValidDirections = new List<string>
+        { "north", "n", "east", "e", "south", "s", "west", "w" };
+
     // Returns null if the direction is unrecognised or there is nothing that way.
     public static Location? Move(Location currentLocation, string? direction)
     {
@@ -58,7 +61,6 @@ public static class MoveLocation
     }
 
     // Prints the directions the player can currently travel in.
-    // Prints the directions the player can currently travel in.
     public static void ShowAvailableDirections(Location location)
     {
         var exits = GetAvailableExits(location);
@@ -77,6 +79,7 @@ public static class MoveLocation
         {
             Console.WriteLine($"  {exit.Key} -> {exit.Value.Name}");
         }
+
         Console.ResetColor();
     }
 
@@ -148,6 +151,7 @@ public static class MoveLocation
             Console.ForegroundColor = ConsoleColor.DarkGray;
             Console.WriteLine($"  {letter} ({direction}) -> (nothing this way)");
         }
+
         Console.ResetColor();
     }
 
@@ -181,12 +185,13 @@ public static class MoveLocation
                 Console.ResetColor();
                 return currentLocation;
             }
+
             Console.ForegroundColor = ConsoleColor.Red;
             Console.WriteLine($"{direction.Trim()} is an invalid input!");
             Console.ResetColor();
             return currentLocation;
         }
-        
+
         Console.ForegroundColor = ConsoleColor.Green;
         Console.WriteLine($"You travel {direction.Trim().ToLower()} to {destination.Name}.");
         Console.ResetColor();
@@ -198,7 +203,7 @@ public static class MoveLocation
         return destination;
     }
 
-    public static Location ExploreLoop(Location startingLocation)
+    public static Location ExploreLoop(Location startingLocation, Player player)
     {
         Location currentLocation = startingLocation;
         bool exploring = true;
@@ -206,6 +211,7 @@ public static class MoveLocation
         while (exploring)
         {
             Console.Clear();
+            PlayerStats.ShowStats(player);
             Console.WriteLine();
             Console.ForegroundColor = ConsoleColor.Yellow;
             Console.WriteLine($"You are at: {currentLocation.Name}");
@@ -239,6 +245,4 @@ public static class MoveLocation
 
         return currentLocation;
     }
-
-    
 }
