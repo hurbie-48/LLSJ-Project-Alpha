@@ -1,5 +1,6 @@
 using LLSJ_Project_Alpha.Entities;
 using LLSJ_Project_Alpha;
+using LLSJ_Project_Alpha.Quest;
 namespace LLSJProjectAlpha;
 
 // Handles everything related to moving between Locations:
@@ -226,6 +227,13 @@ public static class MoveLocation
                 Console.ResetColor();
             }
 
+            if (currentLocation.HasQuest)
+            {
+                Console.ForegroundColor = ConsoleColor.Blue;
+                Console.WriteLine("There is a quest available here, type 'quest' to view it.");
+                Console.ResetColor();
+            }
+
             ShowCompass(currentLocation);
 
             Console.WriteLine("Enter a direction to move, 'shop' to browse a shop here, or 'quit' to stop exploring.");
@@ -241,6 +249,13 @@ public static class MoveLocation
             if (currentLocation.HasShop && input != null && input.Trim().ToLower() == "shop")
             {
                 Shop.Enter(player);
+                continue;
+            }
+
+            if (currentLocation.HasQuest && input.Equals("quest"))
+            {
+                Quest quest = currentLocation.QuestAvailableHere;
+                quest.GiveQuest();
                 continue;
             }
 
