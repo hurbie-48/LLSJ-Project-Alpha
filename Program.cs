@@ -13,14 +13,8 @@ namespace LLSJProjectAlpha
             // Testing new player class
             Player player = new Player();
             player.name = AskForPlayerName();
-
-            Console.WriteLine();
-            Console.WriteLine($"Welcome, {player.name}! Your adventure begins now.");
-            Console.WriteLine();
-
-            Console.WriteLine(player.name);
-            Console.WriteLine($"Current health: {player.currentHitPoints}");
-            Console.WriteLine($"Current health: {player.maximumHitPoints}");
+            player.CurrentHitPoints = 100;
+            player.MaximumHitPoints = 100;
 
             // Test for monster class
             Monster monster = new Monster();
@@ -35,7 +29,7 @@ namespace LLSJProjectAlpha
             Console.WriteLine($"Max health: {monster.maximumHitPoints}");
             Console.WriteLine($"current health: {monster.currentHitPoints}");
             Location startingLocation = World.LocationByID(World.LOCATION_ID_HOME)!;
-            MoveLocation.ExploreLoop(startingLocation);
+            MoveLocation.ExploreLoop(startingLocation, player);
         }
 
         // Prints the opening title/story blurb for the game.
