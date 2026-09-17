@@ -11,6 +11,7 @@ public class Location
 
     public Quest? QuestAvailableHere { get; set; }
     public Monster? MonsterLivingHere { get; set; }
+    public bool HasShop { get; set; }
 
     public Location? LocationToNorth { get; set; }
     public Location? LocationToEast { get; set; }

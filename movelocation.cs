@@ -1,4 +1,5 @@
 using LLSJ_Project_Alpha.Entities;
+using LLSJ_Project_Alpha;
 namespace LLSJProjectAlpha;
 
 // Handles everything related to moving between Locations:
@@ -218,15 +219,28 @@ public static class MoveLocation
             Console.ResetColor();
             Console.WriteLine(currentLocation.Description);
 
+            if (currentLocation.HasShop)
+            {
+                Console.ForegroundColor = ConsoleColor.Magenta;
+                Console.WriteLine("There is a shop here! Type 'shop' to browse it.");
+                Console.ResetColor();
+            }
+
             ShowCompass(currentLocation);
 
-            Console.WriteLine("Enter a direction to move, or 'quit' to stop exploring.");
+            Console.WriteLine("Enter a direction to move, 'shop' to browse a shop here, or 'quit' to stop exploring.");
             Console.Write("> ");
             string? input = Console.ReadLine();
 
             if (input != null && input.Trim().ToLower() is "quit" or "exit")
             {
                 exploring = false;
+                continue;
+            }
+
+            if (currentLocation.HasShop && input != null && input.Trim().ToLower() == "shop")
+            {
+                Shop.Enter(player);
                 continue;
             }
 
