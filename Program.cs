@@ -12,7 +12,7 @@ namespace LLSJProjectAlpha
 
             // Testing new player class
             Player player = new Player();
-            player.name = AskForPlayerName();
+            player.Name = AskForPlayerName();
             player.CurrentHitPoints = 100;
             player.MaximumHitPoints = 100;
 
