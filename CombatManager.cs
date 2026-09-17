@@ -1,7 +1,7 @@
-using System;
-using System.Linq;
+using LLSJ_Project_Alpha.Entities;
 
 namespace LLSJ_Project_Alpha;
+
 
 public class CombatManager
 {

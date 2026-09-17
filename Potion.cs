@@ -1,5 +1,7 @@
 namespace LLSJ_Project_Alpha;
 
+using LLSJ_Project_Alpha.Entities;
+
 public class Potion
 {
     public string name;
