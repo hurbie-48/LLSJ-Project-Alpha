@@ -14,8 +14,12 @@ public class PlayerStats
         DrawHealthBar(player.CurrentHitPoints, player.MaximumHitPoints);
 
         Console.WriteLine();
+        Console.WriteLine($"Gold: {player.Gold}");
+        player.Inventory.ShowInventory();
     }
 
+    // Draws a simple [####------] health bar, colored green/yellow/red
+    // depending on how much health remains.
     private static void DrawHealthBar(int current, int max, int barWidth = 20)
     {
         if (max <= 0)
