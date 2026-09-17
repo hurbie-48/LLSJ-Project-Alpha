@@ -18,10 +18,11 @@
 
         public void GiveQuest()
         {
+            Console.WriteLine("\n");
             Console.WriteLine("A new quest has arrived!");
             Console.WriteLine(Name);
             Console.WriteLine("Do you want to no about this quest? Y/N");
-            Console.Write('>');
+            Console.Write("> ");
             string questInfoPrompt = Console.ReadLine()!;
 
             if (questInfoPrompt.ToLower()[0] == 'y')
@@ -45,16 +46,24 @@
 
         public void StartQuest()
         {
-            Console.WriteLine("Quest has started!");
-            Console.WriteLine(Name);
+            Console.BackgroundColor = ConsoleColor.Yellow;
+            Console.ForegroundColor = ConsoleColor.White;
+            Console.WriteLine("=====================================================");
+            Console.WriteLine($"YOU HAVE STARTED A NEW QUEST '{Name}'");
+            Console.WriteLine("=====================================================");
+            Console.ResetColor();
         }
 
         public void CompletedQuest()
         {
             IsCompleted = true;
+
+            Console.BackgroundColor = ConsoleColor.Yellow;
+            Console.ForegroundColor = ConsoleColor.White;
             Console.WriteLine("=====================================================");
-            Console.WriteLine($"YOU HAVE COMPLETED {Name}");
+            Console.WriteLine($"YOU HAVE COMPLETED THE QUEST {Name}");
             Console.WriteLine("=====================================================");
+            Console.ResetColor();
 
             PromptRewards();
         }
