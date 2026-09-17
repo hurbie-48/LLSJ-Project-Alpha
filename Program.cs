@@ -71,7 +71,8 @@ __/\\\______________/\\\_________________/\\\\\\\\\\\________/\\\\\\\\\\\_
 
             while (string.IsNullOrWhiteSpace(name))
             {
-                Console.Write("What is your name, adventurer? > ");
+                Console.WriteLine("What is your name, adventurer?");
+                Console.Write("> ");
                 name = Console.ReadLine();
 
                 if (string.IsNullOrWhiteSpace(name))
