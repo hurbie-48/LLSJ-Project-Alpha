@@ -1,107 +1,175 @@
-public static class CombatManager
+using System;
+using System.Linq;
+
+namespace LLSJ_Project_Alpha;
+
+public class CombatManager
 {
-    public const double HIT_CHANCE = 0.8;
-    public const double CRITICAL_HIT_CHANCE = 0.1;
-    public const double CRITICAL_HIT_MULTIPLIER = 1.5;
-    public const double DODGE_CHANCE_PER_LEVEL = 0.05;
+    private Random random = new Random();
 
-    private static readonly Random rng = new Random();
-
-    public static void RunCombat(Player player, Monster monster)
+    public void StartCombat(Player player, Monster monster)
     {
-        // loop tot 1 van beide dood is of speler vlucht
-        bool fled = false;
+        Console.WriteLine("Een wilde " + monster.Name + " verschijnt!");
 
-        while (player.currentHitPoints > 0 && monster.currentHitPoints > 0 && !fled)
+        while (player.CurrentHP > 0 && monster.CurrentHP > 0)
         {
-            Console.WriteLine($"\n--- {player.name}: {player.currentHitPoints}/{player.maximumHitPoints} HP | {monster.name}: {monster.currentHitPoints}/{monster.maximumHitPoints} HP ---");
+            Console.WriteLine("");
+            Console.WriteLine("--- " + player.Name + ": " + player.CurrentHP + "/" + player.MaxHP + " HP | " + monster.Name + ": " + monster.CurrentHP + " HP ---");
             Console.WriteLine("1. Attack");
             Console.WriteLine("2. Item");
             Console.WriteLine("3. Flee");
-            Console.Write("Kies een optie: ");
-            string choice = Console.ReadLine();
+            Console.Write("Kies actie: ");
 
-            switch (choice)
+            string input = Console.ReadLine();
+
+            if (input == "1")
             {
-                case "1":
-                    PlayerAttack(player, monster);
-                    break;
-                case "2":
-                    // todo inventory nog koppelen
-                    UseItem(player);
-                    break;
-                case "3":
-                    Console.WriteLine($"{player.name} vlucht weg!");
-                    fled = true;
-                    break;
-                default:
-                    Console.WriteLine("Ongeldige keuze");
+                PlayerTurn(player, monster);
+            }
+            else if (input == "2")
+            {
+                bool itemGebruikt = UseItemMenu(player);
+                if (itemGebruikt == false)
+                {
                     continue;
+                }
             }
-
-            // monster valt terug aan tenzij dood of speler weg is
-            if (!fled && monster.currentHitPoints > 0)
+            else if (input == "3")
             {
-                MonsterAttack(player, monster);
+                Console.WriteLine("Je bent weggerend!");
+                return;
+            }
+            else
+            {
+                Console.WriteLine("Ongeldige keuze, probeer opnieuw.");
+                continue;
+            }
+
+            if (monster.CurrentHP <= 0)
+            {
+                Console.WriteLine("Je hebt " + monster.Name + " verslagen!");
+                break;
+            }
+
+            MonsterTurn(player, monster);
+
+            if (player.CurrentHP <= 0)
+            {
+                Console.WriteLine("Je bent dood gegaan...");
+                break;
+            }
+        }
+    }
+
+    private void PlayerTurn(Player player, Monster monster)
+    {
+        int hitRoll = random.Next(1, 101);
+        if (hitRoll > 80)
+        {
+            Console.WriteLine("Je aanval miste!");
+            return;
+        }
+
+        int dodgeChance = monster.Level * 10;
+        int dodgeRoll = random.Next(1, 101);
+        if (dodgeRoll <= dodgeChance)
+        {
+            Console.WriteLine(monster.Name + " ontweek of blokkeerde je aanval!");
+            return;
+        }
+
+        int damage = player.EquippedWeapon.Damage;
+
+        int critRoll = random.Next(1, 101);
+        if (critRoll <= 10)
+        {
+            damage = (int)(damage * 1.5);
+            Console.WriteLine("CRITICAL HIT!");
+        }
+
+        monster.CurrentHP = monster.CurrentHP - damage;
+        if (monster.CurrentHP < 0)
+        {
+            monster.CurrentHP = 0;
+        }
+
+        Console.WriteLine("Je slaat " + monster.Name + " voor " + damage + " damage!");
+    }
+
+    private bool UseItemMenu(Player player)
+    {
+        if (player.Inventory.Potions.Count == 0)
+        {
+            Console.WriteLine("Je hebt geen potions in je inventory!");
+            return false;
+        }
+
+        Console.WriteLine("");
+        Console.WriteLine("Kies een potion:");
+        
+        int i = 0;
+        while (i < player.Inventory.Potions.Count)
+        {
+            Potion p = player.Inventory.Potions[i];
+            int nummer = i + 1;
+            Console.WriteLine(nummer + ". " + p.name + " (+" + p.healingAmount + " HP)");
+            i = i + 1;
+        }
+        Console.WriteLine("0. Terug");
+
+        Console.Write("Optie: ");
+        string choice = Console.ReadLine();
+
+        if (int.TryParse(choice, out int index))
+        {
+            if (index > 0 && index <= player.Inventory.Potions.Count)
+            {
+                Potion selectedPotion = player.Inventory.Potions[index - 1];
+
+                selectedPotion.Heal(player);
+
+                player.Inventory.Potions.RemoveAt(index - 1);
+                return true;
             }
         }
 
-        if (player.currentHitPoints <= 0)
-            Console.WriteLine($"{player.name} is verslagen...");
-        else if (monster.currentHitPoints <= 0)
-            Console.WriteLine($"{monster.name} is verslagen!");
+        return false;
     }
 
-    public static void PlayerAttack(Player player, Monster monster)
+    private void MonsterTurn(Player player, Monster monster)
     {
-        // 80% kans raak
-        if (rng.NextDouble() > HIT_CHANCE)
+        Console.WriteLine("");
+        Console.WriteLine(monster.Name + " valt aan!");
+
+        int hitRoll = random.Next(1, 101);
+        if (hitRoll > 80)
         {
-            Console.WriteLine($"{player.name} mist!");
+            Console.WriteLine(monster.Name + " miste zijn aanval!");
             return;
         }
 
-        // todo player weapon nog niet af dus hardcoded
-        int baseDamage = 5;
-
-        bool isCritical = rng.NextDouble() < CRITICAL_HIT_CHANCE;
-        double damage = isCritical ? baseDamage * CRITICAL_HIT_MULTIPLIER : baseDamage;
-
-        // todo monster level nog niet af dus dodge altijd 0
-        double dodgeChance = 0;
-        if (rng.NextDouble() < dodgeChance)
+        int dodgeRoll = random.Next(1, 101);
+        if (dodgeRoll <= 10)
         {
-            Console.WriteLine($"{monster.name} ontwijkt!");
+            Console.WriteLine("Je ontweek de aanval van het monster!");
             return;
         }
 
-        monster.currentHitPoints -= (int)damage;
-        if (monster.currentHitPoints < 0) monster.currentHitPoints = 0;
+        int damage = monster.BaseDamage + (monster.Level * 2);
 
-        string critText = isCritical ? " crit!" : "";
-        Console.WriteLine($"{player.name} doet {(int)damage} damage{critText} aan {monster.name}");
-    }
-
-    public static void MonsterAttack(Player player, Monster monster)
-    {
-        // zelfde raakkans als speler
-        if (rng.NextDouble() > HIT_CHANCE)
+        int critRoll = random.Next(1, 101);
+        if (critRoll <= 10)
         {
-            Console.WriteLine($"{monster.name} mist!");
-            return;
+            damage = (int)(damage * 1.5);
+            Console.WriteLine(monster.Name + " pakt een CRITICAL HIT!");
         }
 
-        int damage = monster.maximumDamage;
+        player.CurrentHP = player.CurrentHP - damage;
+        if (player.CurrentHP < 0)
+        {
+            player.CurrentHP = 0;
+        }
 
-        player.currentHitPoints -= damage;
-        if (player.currentHitPoints < 0) player.currentHitPoints = 0;
-
-        Console.WriteLine($"{monster.name} doet {damage} damage aan {player.name}");
-    }
-
-    private static void UseItem(Player player)
-    {
-        // todo inventory nog niet af
-        Console.WriteLine("Geen inventory nog, todo");
+        Console.WriteLine(monster.Name + " doet " + damage + " damage aan jou!");
     }
 }

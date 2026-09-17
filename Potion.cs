@@ -12,4 +12,16 @@ public class Potion
         description = itemDescription;
         healingAmount = itemhealingAmount;
     }
+
+    public void Heal(Player player)
+    {
+        player.CurrentHP += healingAmount;
+
+        if (player.CurrentHP > player.MaxHP)
+        {
+            player.CurrentHP = player.MaxHP;
+        }
+
+        Console.WriteLine($"Je gebruikt {name} en krijgt {healingAmount} HP erbij!");
+    }
 }
