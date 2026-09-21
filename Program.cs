@@ -61,13 +61,17 @@ __/\\\______________/\\\_________________/\\\\\\\\\\\________/\\\\\\\\\\\_
         // other than blank/whitespace.
         private static string AskForPlayerName()
         {
-            string? name = null;
+            string name = string.Empty;
 
-            while (string.IsNullOrWhiteSpace(name))
+            while (name.Length < 2)
             {
                 Console.WriteLine("What is your name, adventurer?");
+                Console.ForegroundColor = ConsoleColor.DarkGray;
+                Console.WriteLine("Requirements:\nAt least 2 characters");
+                Console.ForegroundColor = ConsoleColor.White;
                 Console.Write("> ");
-                name = Console.ReadLine();
+        
+                name = (Console.ReadLine() ?? string.Empty).Trim();
 
                 if (string.IsNullOrWhiteSpace(name))
                 {
@@ -75,9 +79,15 @@ __/\\\______________/\\\_________________/\\\\\\\\\\\________/\\\\\\\\\\\_
                     Console.WriteLine("A name can't be blank. Try again.");
                     Console.ResetColor();
                 }
+                else if (name.Length < 2)
+                {
+                    Console.ForegroundColor = ConsoleColor.Red;
+                    Console.WriteLine("A name can't be one character. Try again.");
+                    Console.ResetColor();
+                }
             }
 
-            return name.Trim();
+            return name;
         }
     }
 }
