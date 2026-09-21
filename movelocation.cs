@@ -227,9 +227,10 @@ public static class MoveLocation
                 Console.ResetColor();
             }
 
-            if (currentLocation.HasQuest)
+            if (currentLocation.HasQuest && !currentLocation.QuestAvailableHere.IsCompleted)
             {
                 Console.ForegroundColor = ConsoleColor.Blue;
+                Quest quest = currentLocation.QuestAvailableHere;
                 Console.WriteLine("There is a quest available here, type 'quest' to view it.");
                 Console.ResetColor();
             }
@@ -255,7 +256,7 @@ public static class MoveLocation
             if (currentLocation.HasQuest && input.Equals("quest"))
             {
                 Quest quest = currentLocation.QuestAvailableHere;
-                quest.GiveQuest();
+                quest.GiveQuest(player);
                 continue;
             }
 
