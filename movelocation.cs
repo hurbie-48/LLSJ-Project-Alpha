@@ -226,21 +226,56 @@ public static class MoveLocation
                 Console.ResetColor();
             }
 
+            if (currentLocation.MonsterLivingHere != null)
+            {
+                Console.ForegroundColor = ConsoleColor.Red;
+                Console.WriteLine($"A {currentLocation.MonsterLivingHere.Name} is here! Type 'battle' when you are ready.");
+                Console.ResetColor();
+            }
+
             ShowCompass(currentLocation);
 
-            Console.WriteLine("Enter a direction to move, 'shop' to browse a shop here, or 'quit' to stop exploring.");
+            Console.WriteLine("Enter a direction, 'shop', 'battle', or 'quit'.");
             Console.Write("> ");
             string? input = Console.ReadLine();
+            string command = input?.Trim().ToLower() ?? "";
 
-            if (input != null && input.Trim().ToLower() is "quit" or "exit")
+            if (command is "quit" or "exit")
             {
                 exploring = false;
                 continue;
             }
 
-            if (currentLocation.HasShop && input != null && input.Trim().ToLower() == "shop")
+            if (command == "shop")
             {
-                Shop.Enter(player);
+                if (currentLocation.HasShop)
+                {
+                    Shop.Enter(player);
+                }
+                else
+                {
+                    Console.WriteLine("There is no shop at this location.");
+                    Thread.Sleep(1500);
+                }
+
+                continue;
+            }
+
+            if (command == "battle")
+            {
+                if (currentLocation.MonsterLivingHere == null)
+                {
+                    Console.WriteLine("There is no monster here to fight.");
+                    Thread.Sleep(1500);
+                    continue;
+                }
+
+                CombatResult result = StartLocationCombat(player, currentLocation);
+                if (result == CombatResult.PlayerDefeated)
+                {
+                    exploring = false;
+                }
+
                 continue;
             }
 
@@ -258,20 +293,13 @@ public static class MoveLocation
             else
             {
                 player.CurrentLocation = currentLocation;
-                CombatResult result = StartLocationCombat(player, currentLocation);
-
-                if (result == CombatResult.PlayerDefeated)
-                {
-                    exploring = false;
-                }
             }
         }
 
         return currentLocation;
     }
 
-    // A monster is fought when the player enters its location. Winning clears
-    // the location; fleeing leaves the monster there for a later visit.
+    // Winning clears the location; fleeing leaves the monster there for a later visit.
     private static CombatResult StartLocationCombat(Player player, Location location)
     {
         if (location.MonsterLivingHere == null)
