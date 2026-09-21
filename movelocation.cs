@@ -255,8 +255,47 @@ public static class MoveLocation
                 Console.ResetColor();
                 Thread.Sleep(3000);
             }
+            else
+            {
+                player.CurrentLocation = currentLocation;
+                CombatResult result = StartLocationCombat(player, currentLocation);
+
+                if (result == CombatResult.PlayerDefeated)
+                {
+                    exploring = false;
+                }
+            }
         }
 
         return currentLocation;
+    }
+
+    // A monster is fought when the player enters its location. Winning clears
+    // the location; fleeing leaves the monster there for a later visit.
+    private static CombatResult StartLocationCombat(Player player, Location location)
+    {
+        if (location.MonsterLivingHere == null)
+        {
+            return CombatResult.Fled;
+        }
+
+        Monster monster = location.MonsterLivingHere;
+        CombatResult result = new CombatManager().StartCombat(player, monster);
+
+        if (result == CombatResult.Won)
+        {
+            location.MonsterLivingHere = null;
+            Console.ForegroundColor = ConsoleColor.Green;
+            Console.WriteLine($"The {location.Name} is safe for now.");
+            Console.ResetColor();
+            Console.WriteLine("Press Enter to continue exploring...");
+            Console.ReadLine();
+        }
+        else if (result == CombatResult.PlayerDefeated)
+        {
+            Console.WriteLine("Your adventure ends here.");
+        }
+
+        return result;
     }
 }
