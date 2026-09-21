@@ -1,6 +1,8 @@
 ﻿using LLSJ_Project_Alpha.Entities;
 using LLSJ_Project_Alpha.Quest;
 
+using LLSJ_Project_Alpha;
+
 namespace LLSJProjectAlpha
 {
     public class Program

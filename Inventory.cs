@@ -94,6 +94,5 @@ namespace LLSJ_Project_Alpha.Entities
     public partial class Player
     {
         public int Gold { get; set; } = 20;
-        public LLSJ_Project_Alpha.Inventory Inventory { get; set; } = new LLSJ_Project_Alpha.Inventory();
     }
 }

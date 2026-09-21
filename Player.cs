@@ -4,9 +4,9 @@ namespace LLSJ_Project_Alpha.Entities;
 
 public partial class Player
 {
-    public string Name { get; set; } = "";
-    public int CurrentHitPoints { get; set; }
-    public int MaximumHitPoints { get; set; }
+    // Compatibility aliases used by the exploration code.
+    public int CurrentHitPoints { get => CurrentHP; set => CurrentHP = value; }
+    public int MaximumHitPoints { get => MaxHP; set => MaxHP = value; }
     public Weapon? CurrentWeapon { get; set; }
     public Location? CurrentLocation { get; set; }
 }

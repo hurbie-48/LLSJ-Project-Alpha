@@ -20,7 +20,7 @@ public class CombatManager
             Console.WriteLine("3. Flee");
             Console.Write("Kies actie: ");
 
-            string input = Console.ReadLine();
+            string input = Console.ReadLine() ?? "";
 
             if (input == "1")
             {
@@ -118,7 +118,7 @@ public class CombatManager
         Console.WriteLine("0. Terug");
 
         Console.Write("Optie: ");
-        string choice = Console.ReadLine();
+        string choice = Console.ReadLine() ?? "";
 
         if (int.TryParse(choice, out int index))
         {
