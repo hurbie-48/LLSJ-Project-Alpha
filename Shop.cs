@@ -6,14 +6,16 @@ namespace LLSJ_Project_Alpha;
 // inventory (an Item or a Potion) if bought.
 public class ShopListing
 {
+    public int ID;
     public string Name;
     public string Description;
     public int Price;
     public bool IsPotion;
     public int HealingAmount; // only used when IsPotion is true
 
-    public ShopListing(string name, string description, int price, bool isPotion = false, int healingAmount = 0)
+    public ShopListing(int id, string name, string description, int price, bool isPotion = false, int healingAmount = 0)
     {
+        ID = id;
         Name = name;
         Description = description;
         Price = price;
@@ -26,10 +28,10 @@ public static class Shop
 {
     public static readonly List<ShopListing> Listings = new()
     {
-        new ShopListing("Bread", "A hearty loaf, takes the edge off hunger.", 5),
-        new ShopListing("Torch", "Lights up the darkest of corners.", 8),
-        new ShopListing("Minor Healing Potion", "Restores a small amount of health.", 15, isPotion: true, healingAmount: 10),
-        new ShopListing("Greater Healing Potion", "Restores a large amount of health.", 30, isPotion: true, healingAmount: 25),
+        new ShopListing(4, "Bread", "A hearty loaf, takes the edge off hunger.", 5),
+        new ShopListing(5, "Torch", "Lights up the darkest of corners.", 8),
+        new ShopListing(6, "Minor Healing Potion", "Restores a small amount of health.", 15, isPotion: true, healingAmount: 10),
+        new ShopListing(7, "Greater Healing Potion", "Restores a large amount of health.", 30, isPotion: true, healingAmount: 25),
     };
 
     // Runs the interactive shop menu until the player leaves.
@@ -136,7 +138,7 @@ public static class Shop
             }
 
             player.Gold -= listing.Price;
-            player.Inventory.AddItemToInventory(new Item(listing.Name, listing.Description), 1);
+            player.Inventory.AddItemToInventory(new Item(listing.ID, listing.Name, listing.Description), 1);
         }
 
         Console.ForegroundColor = ConsoleColor.Green;

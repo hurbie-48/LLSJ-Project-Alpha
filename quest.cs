@@ -7,15 +7,15 @@ namespace LLSJ_Project_Alpha.Quest
         public int ID;
         public readonly string Name, Description;
         public bool IsCompleted;
-        public Dictionary<string, int> Rewards;
+        public List<Item> Rewards = [];
 
-        public Quest(int id, string name, string description)
+        public Quest(int id, string name, string description, Item reward)
         {
             ID = id;
             Name = name;
             Description = description;
             IsCompleted = false;
-            Rewards = new Dictionary<string, int>();
+            Rewards.Add(reward);
         }
 
         public void GiveQuest(Player player)
@@ -73,8 +73,10 @@ namespace LLSJ_Project_Alpha.Quest
             Thread.Sleep(3000);
         }
 
-        public void CompletedQuest()
+        public void CompletedQuest(Player player)
         {
+            Console.Clear();
+            PlayerStats.ShowStats(player);
             IsCompleted = true;
 
             Console.BackgroundColor = ConsoleColor.Yellow;
@@ -84,10 +86,10 @@ namespace LLSJ_Project_Alpha.Quest
             Console.WriteLine("==========================================================");
             Console.ResetColor();
 
-            PromptRewards();
+            PromptRewards(player);
         }
 
-        public void PromptRewards()
+        public void PromptRewards(Player player)
         {
             Console.WriteLine("Do you what to have your rewards? (Y/N)");
             Console.Write("> ");
@@ -95,13 +97,17 @@ namespace LLSJ_Project_Alpha.Quest
 
             if (userInput == "y")
             {
-                GiveRewards();
+                for (int i = 0; i < Rewards.Count(); i++)
+                {
+                    player.Inventory.AddItemToInventory(Rewards[i], 1);
+                }
             }
-        }
-
-        public Dictionary<string, int> GiveRewards()
-        {
-            return Rewards;
+            else
+            {
+                Console.ForegroundColor = ConsoleColor.DarkRed;
+                Console.WriteLine("You have thrown away your rewards!");
+                Console.ResetColor();
+            }
         }
     }
 }

@@ -12,7 +12,7 @@ public static class MoveLocation
     public static readonly List<string> ValidDirections = new List<string>
         { "north", "n", "east", "e", "south", "s", "west", "w" };
 
-    // Returns null if the direction is unrecognised or there is nothing that way.
+    // Returns null if the direction is unrecognized or there is nothing that way.
     public static Location? Move(Location currentLocation, string? direction)
     {
         if (currentLocation == null || string.IsNullOrWhiteSpace(direction))
@@ -233,6 +233,10 @@ public static class MoveLocation
                 Quest quest = currentLocation.QuestAvailableHere;
                 Console.WriteLine("There is a quest available here, type 'quest' to view it.");
                 Console.ResetColor();
+
+                Console.ForegroundColor = ConsoleColor.Cyan;
+                Console.WriteLine("To complete this quest type 'complete' to receive the rewards.");
+                Console.ResetColor();
             }
 
             ShowCompass(currentLocation);
@@ -241,28 +245,33 @@ public static class MoveLocation
             Console.Write("> ");
             string? input = Console.ReadLine();
 
+            // @TODO: refactor to switch expression
             if (input != null && input.Trim().ToLower() is "quit" or "exit")
             {
                 exploring = false;
                 continue;
             }
 
-            if (currentLocation.HasShop && input != null && input.Trim().ToLower() == "shop")
+            if (currentLocation.HasShop && input != null && input.Equals("shop"))
             {
                 Shop.Enter(player);
                 continue;
             }
 
-            if (currentLocation.HasQuest && input.Equals("quest"))
+            if (currentLocation.HasQuest && input != null && input.Equals("quest"))
             {
-                Quest quest = currentLocation.QuestAvailableHere;
-                quest.GiveQuest(player);
+                currentLocation.QuestAvailableHere.GiveQuest(player);
+                continue;
+            }
+
+            if (currentLocation.HasQuest && input != null && input.Equals("complete"))
+            {
+                currentLocation.QuestAvailableHere.CompletedQuest(player);
                 continue;
             }
 
             Location before = currentLocation;
             currentLocation = TryMove(currentLocation, input);
-
             if (ReferenceEquals(currentLocation, before))
             {
                 Console.WriteLine();

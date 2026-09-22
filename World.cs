@@ -1,3 +1,4 @@
+using LLSJ_Project_Alpha;
 using LLSJ_Project_Alpha.Entities;
 using LLSJ_Project_Alpha.Quest;
 
@@ -9,10 +10,15 @@ public static class World
     public static readonly List<Monster> Monsters = new List<Monster>();
     public static readonly List<Quest> Quests = new List<Quest>();
     public static readonly List<Location> Locations = new List<Location>();
+    public static readonly List<Item> Items = new List<Item>();
     public static readonly Random RandomGenerator = new Random();
 
     public const int WEAPON_ID_RUSTY_SWORD = 1;
     public const int WEAPON_ID_CLUB = 2;
+
+    public const int ITEM_ID_RAT_TAIL = 1;
+    public const int ITEM_ID_SNAKE_TOOTH = 2;
+    public const int ITEM_ID_SPIDER_SILK = 3;
 
     public const int MONSTER_ID_RAT = 1;
     public const int MONSTER_ID_SNAKE = 2;
@@ -36,6 +42,7 @@ public static class World
     {
         PopulateWeapons();
         PopulateMonsters();
+        PopulateItems();
         PopulateQuests();
         PopulateLocations();
     }
@@ -44,6 +51,13 @@ public static class World
     {
         Weapons.Add(new Weapon(WEAPON_ID_RUSTY_SWORD, "Rusty sword", 5));
         Weapons.Add(new Weapon(WEAPON_ID_CLUB, "Club", 10));
+    }
+
+    public static void PopulateItems()
+    {
+        Items.Add(new Item(ITEM_ID_RAT_TAIL, "Rat tail", "Can be used for alchemy."));
+        Items.Add(new Item(ITEM_ID_SNAKE_TOOTH, "Snake tooth", "A sharp tooth from a snake, very poisonous."));
+        Items.Add(new Item(ITEM_ID_SPIDER_SILK, "Spider silk", "fabric like spider silk. Looks shiny and is sticky."));
     }
 
     public static void PopulateMonsters()
@@ -86,19 +100,22 @@ public static class World
             new Quest(
                 QUEST_ID_CLEAR_ALCHEMIST_GARDEN,
                 "Clear the alchemist's garden",
-                "Kill rats in the alchemist's garden ");
+                "Kill rats in the alchemist's garden",
+                ItemByID(ITEM_ID_RAT_TAIL));
 
         Quest clearFarmersField =
             new Quest(
                 QUEST_ID_CLEAR_FARMERS_FIELD,
                 "Clear the farmer's field",
-                "Kill snakes in the farmer's field");
+                "Kill snakes in the farmer's field",
+                ItemByID(ITEM_ID_SNAKE_TOOTH));
 
         Quest clearSpidersForest =
                     new Quest(
                         QUEST_ID_COLLECT_SPIDER_SILK,
                         "Collect spider silk",
-                        "Kill spiders in the spider forest");
+                        "Kill spiders in the spider forest",
+                        ItemByID(ITEM_ID_SPIDER_SILK));
 
         Quests.Add(clearAlchemistGarden);
         Quests.Add(clearFarmersField);
@@ -220,6 +237,19 @@ public static class World
             if (quest.ID == id)
             {
                 return quest;
+            }
+        }
+
+        return null;
+    }
+
+    public static Item? ItemByID(int id)
+    {
+        foreach (Item item in Items)
+        {
+            if (item.ID == id)
+            {
+                return item;
             }
         }
 
