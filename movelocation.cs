@@ -1,5 +1,6 @@
 using LLSJ_Project_Alpha.Entities;
 using LLSJ_Project_Alpha;
+using LLSJ_Project_Alpha.Quest;
 namespace LLSJProjectAlpha;
 
 // Handles everything related to moving between Locations:
@@ -11,7 +12,7 @@ public static class MoveLocation
     public static readonly List<string> ValidDirections = new List<string>
         { "north", "n", "east", "e", "south", "s", "west", "w" };
 
-    // Returns null if the direction is unrecognised or there is nothing that way.
+    // Returns null if the direction is unrecognized or there is nothing that way.
     public static Location? Move(Location currentLocation, string? direction)
     {
         if (currentLocation == null || string.IsNullOrWhiteSpace(direction))
@@ -226,10 +227,15 @@ public static class MoveLocation
                 Console.ResetColor();
             }
 
-            if (currentLocation.MonsterLivingHere != null)
+            if (currentLocation.HasQuest && !currentLocation.QuestAvailableHere.IsCompleted)
             {
-                Console.ForegroundColor = ConsoleColor.Red;
-                Console.WriteLine($"A {currentLocation.MonsterLivingHere.Name} is here! Type 'battle' when you are ready.");
+                Console.ForegroundColor = ConsoleColor.Blue;
+                Quest quest = currentLocation.QuestAvailableHere;
+                Console.WriteLine("There is a quest available here, type 'quest' to view it.");
+                Console.ResetColor();
+
+                Console.ForegroundColor = ConsoleColor.Cyan;
+                Console.WriteLine("To complete this quest type 'complete' to receive the rewards.");
                 Console.ResetColor();
             }
 
@@ -240,28 +246,14 @@ public static class MoveLocation
             string? input = Console.ReadLine();
             string command = input?.Trim().ToLower() ?? "";
 
-            if (command is "quit" or "exit")
+            // @TODO: refactor to switch expression
+            if (input != null && input.Trim().ToLower() is "quit" or "exit")
             {
                 exploring = false;
                 continue;
             }
 
-            if (command == "shop")
-            {
-                if (currentLocation.HasShop)
-                {
-                    Shop.Enter(player);
-                }
-                else
-                {
-                    Console.WriteLine("There is no shop at this location.");
-                    Thread.Sleep(1500);
-                }
-
-                continue;
-            }
-
-            if (command == "battle")
+            if (currentLocation.HasShop && input != null && input.Equals("shop"))
             {
                 if (currentLocation.MonsterLivingHere == null)
                 {
@@ -279,9 +271,20 @@ public static class MoveLocation
                 continue;
             }
 
+            if (currentLocation.HasQuest && input != null && input.Equals("quest"))
+            {
+                currentLocation.QuestAvailableHere.GiveQuest(player);
+                continue;
+            }
+
+            if (currentLocation.HasQuest && input != null && input.Equals("complete"))
+            {
+                currentLocation.QuestAvailableHere.CompletedQuest(player);
+                continue;
+            }
+
             Location before = currentLocation;
             currentLocation = TryMove(currentLocation, input);
-
             if (ReferenceEquals(currentLocation, before))
             {
                 Console.WriteLine();

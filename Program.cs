@@ -1,5 +1,4 @@
 ﻿using LLSJ_Project_Alpha.Entities;
-using LLSJ_Project_Alpha.Quest;
 
 using LLSJ_Project_Alpha;
 
@@ -12,12 +11,12 @@ namespace LLSJProjectAlpha
             Console.Clear();
             ShowIntro();
 
-            // Testing new player class
+            // Creating new Player instance
             Player player = new Player();
             player.Name = AskForPlayerName();
+            ShowWelcomeMessage(player.Name);
             player.CurrentHitPoints = 100;
             player.MaximumHitPoints = 100;
-
             Location startingLocation = World.LocationByID(World.LOCATION_ID_HOME)!;
             player.CurrentLocation = startingLocation;
             MoveLocation.ExploreLoop(startingLocation, player);
@@ -50,15 +49,34 @@ __/\\\______________/\\\_________________/\\\\\\\\\\\________/\\\\\\\\\\\_
 
         // Prompts the player for their name, re-asking until they enter something
         // other than blank/whitespace.
+
+        private static void ShowWelcomeMessage(string name)
+        {
+            Console.Write("Welcome ");
+            Console.ForegroundColor = ConsoleColor.Green;
+            Console.Write($"{name}");
+            Console.ForegroundColor = ConsoleColor.White;
+            Console.Write("!");
+            Wait(2);
+        }
+
+        private static void Wait(float timeToWaitInSeconds)
+        {
+            Thread.Sleep((int)(timeToWaitInSeconds * 1000));
+        }
         private static string AskForPlayerName()
         {
-            string? name = null;
+            string name = string.Empty;
 
-            while (string.IsNullOrWhiteSpace(name))
+            while (name.Length < 2)
             {
                 Console.WriteLine("What is your name, adventurer?");
+                Console.ForegroundColor = ConsoleColor.DarkGray;
+                Console.WriteLine("Requirements:\nAt least 2 characters");
+                Console.ForegroundColor = ConsoleColor.White;
                 Console.Write("> ");
-                name = Console.ReadLine();
+        
+                name = (Console.ReadLine() ?? string.Empty).Trim();
 
                 if (string.IsNullOrWhiteSpace(name))
                 {
@@ -66,9 +84,15 @@ __/\\\______________/\\\_________________/\\\\\\\\\\\________/\\\\\\\\\\\_
                     Console.WriteLine("A name can't be blank. Try again.");
                     Console.ResetColor();
                 }
+                else if (name.Length < 2)
+                {
+                    Console.ForegroundColor = ConsoleColor.Red;
+                    Console.WriteLine("A name can't be one character. Try again.");
+                    Console.ResetColor();
+                }
             }
 
-            return name.Trim();
+            return name;
         }
     }
 }
