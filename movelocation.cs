@@ -206,101 +206,138 @@ public static class MoveLocation
     }
 
     public static Location ExploreLoop(Location startingLocation, Player player)
+{
+    Location currentLocation = startingLocation;
+    bool exploring = true;
+
+    while (exploring)
     {
-        Location currentLocation = startingLocation;
-        bool exploring = true;
+        Console.Clear();
+        PlayerStats.ShowStats(player);
+        Console.WriteLine();
+        Console.ForegroundColor = ConsoleColor.Yellow;
+        Console.WriteLine($"You are at: {currentLocation.Name}");
+        Console.ResetColor();
+        Console.WriteLine(currentLocation.Description);
 
-        while (exploring)
+        if (currentLocation.HasShop)
         {
-            Console.Clear();
-            PlayerStats.ShowStats(player);
-            Console.WriteLine();
-            Console.ForegroundColor = ConsoleColor.Yellow;
-            Console.WriteLine($"You are at: {currentLocation.Name}");
+            Console.ForegroundColor = ConsoleColor.Magenta;
+            Console.WriteLine("There is a shop here! Type 'shop' to browse it.");
             Console.ResetColor();
-            Console.WriteLine(currentLocation.Description);
+        }
 
-            if (currentLocation.HasShop)
-            {
-                Console.ForegroundColor = ConsoleColor.Magenta;
-                Console.WriteLine("There is a shop here! Type 'shop' to browse it.");
-                Console.ResetColor();
-            }
+        if (currentLocation.MonsterLivingHere != null)
+        {
+            Console.ForegroundColor = ConsoleColor.Red;
+            Console.WriteLine($"A dangerous {currentLocation.MonsterLivingHere.Name} lurks here! Type 'battle' to fight.");
+            Console.ResetColor();
+        }
 
-            if (currentLocation.HasQuest && !currentLocation.QuestAvailableHere.IsCompleted)
-            {
-                Console.ForegroundColor = ConsoleColor.Blue;
-                Quest quest = currentLocation.QuestAvailableHere;
-                Console.WriteLine("There is a quest available here, type 'quest' to view it.");
-                Console.ResetColor();
+        if (currentLocation.HasQuest && !currentLocation.QuestAvailableHere.IsCompleted)
+        {
+            Console.ForegroundColor = ConsoleColor.Blue;
+            Console.WriteLine("There is a quest available here, type 'quest' to view it.");
+            Console.ResetColor();
 
-                Console.ForegroundColor = ConsoleColor.Cyan;
-                Console.WriteLine("To complete this quest type 'complete' to receive the rewards.");
-                Console.ResetColor();
-            }
+            Console.ForegroundColor = ConsoleColor.Cyan;
+            Console.WriteLine("To complete this quest type 'complete' to receive the rewards.");
+            Console.ResetColor();
+        }
 
-            ShowCompass(currentLocation);
+        ShowCompass(currentLocation);
 
-            Console.WriteLine("Enter a direction, 'shop', 'battle', or 'quit'.");
-            Console.Write("> ");
-            string? input = Console.ReadLine();
-            string command = input?.Trim().ToLower() ?? "";
+        Console.WriteLine("Enter a direction, 'shop', 'battle', 'quest', 'complete', or 'quit'.");
+        Console.Write("> ");
+        string? input = Console.ReadLine();
+        string command = input?.Trim().ToLower() ?? "";
 
-            // @TODO: refactor to switch expression
-            if (input != null && input.Trim().ToLower() is "quit" or "exit")
-            {
+        switch (command)
+        {
+            case "quit" or "exit":
                 exploring = false;
-                continue;
-            }
+                break;
 
-            if (currentLocation.HasShop && input != null && input.Equals("shop"))
-            {
-                if (currentLocation.MonsterLivingHere == null)
+            case "shop":
+                if (!currentLocation.HasShop)
                 {
-                    Console.WriteLine("There is no monster here to fight.");
+                    Console.ForegroundColor = ConsoleColor.DarkYellow;
+                    Console.WriteLine("There is no shop at this location.");
+                    Console.ResetColor();
                     Thread.Sleep(1500);
-                    continue;
+                    break;
                 }
 
-                CombatResult result = StartLocationCombat(player, currentLocation);
-                if (result == CombatResult.PlayerDefeated)
+                // Opens the shop interface directly
+                Shop.Enter(player);
+                break;
+
+            case "battle" or "b":
+                if (currentLocation.MonsterLivingHere == null)
+                {
+                    Console.ForegroundColor = ConsoleColor.DarkYellow;
+                    Console.WriteLine("There is no monster here to fight.");
+                    Console.ResetColor();
+                    Thread.Sleep(1500);
+                    break;
+                }
+
+                CombatResult combatResult = StartLocationCombat(player, currentLocation);
+                if (combatResult == CombatResult.PlayerDefeated)
                 {
                     exploring = false;
                 }
+                break;
 
-                continue;
-            }
+            case "quest":
+                if (currentLocation.HasQuest)
+                {
+                    currentLocation.QuestAvailableHere.GiveQuest(player);
+                }
+                else
+                {
+                    Console.ForegroundColor = ConsoleColor.DarkYellow;
+                    Console.WriteLine("There is no quest available here.");
+                    Console.ResetColor();
+                    Thread.Sleep(1500);
+                }
+                break;
 
-            if (currentLocation.HasQuest && input != null && input.Equals("quest"))
-            {
-                currentLocation.QuestAvailableHere.GiveQuest(player);
-                continue;
-            }
+            case "complete":
+                if (currentLocation.HasQuest)
+                {
+                    currentLocation.QuestAvailableHere.CompletedQuest(player);
+                }
+                else
+                {
+                    Console.ForegroundColor = ConsoleColor.DarkYellow;
+                    Console.WriteLine("There is no quest to complete here.");
+                    Console.ResetColor();
+                    Thread.Sleep(1500);
+                }
+                break;
 
-            if (currentLocation.HasQuest && input != null && input.Equals("complete"))
-            {
-                currentLocation.QuestAvailableHere.CompletedQuest(player);
-                continue;
-            }
-
-            Location before = currentLocation;
-            currentLocation = TryMove(currentLocation, input);
-            if (ReferenceEquals(currentLocation, before))
-            {
-                Console.WriteLine();
-                Console.ForegroundColor = ConsoleColor.DarkGray;
-                Console.WriteLine("Clearing in 3 seconds...");
-                Console.ResetColor();
-                Thread.Sleep(3000);
-            }
-            else
-            {
-                player.CurrentLocation = currentLocation;
-            }
+            default:
+                Location before = currentLocation;
+                currentLocation = TryMove(currentLocation, input);
+                if (ReferenceEquals(currentLocation, before))
+                {
+                    Console.WriteLine();
+                    Console.ForegroundColor = ConsoleColor.DarkGray;
+                    Console.WriteLine("Clearing in 3 seconds...");
+                    Console.ResetColor();
+                    Thread.Sleep(3000);
+                }
+                else
+                {
+                    player.CurrentLocation = currentLocation;
+                }
+                break;
         }
-
-        return currentLocation;
     }
+
+    return currentLocation;
+}
 
     // Winning clears the location; fleeing leaves the monster there for a later visit.
     private static CombatResult StartLocationCombat(Player player, Location location)
