@@ -12,6 +12,7 @@ namespace LLSJProjectAlpha
             // Creating new Player instance
             Player player = new Player();
             player.Name = AskForPlayerName();
+            ShowWelcomeMessage(player.Name);
             player.CurrentHitPoints = 100;
             player.MaximumHitPoints = 100;
             Location startingLocation = World.LocationByID(World.LOCATION_ID_HOME)!;
@@ -45,6 +46,21 @@ __/\\\______________/\\\_________________/\\\\\\\\\\\________/\\\\\\\\\\\_
 
         // Prompts the player for their name, re-asking until they enter something
         // other than blank/whitespace.
+
+        private static void ShowWelcomeMessage(string name)
+        {
+            Console.Write("Welcome ");
+            Console.ForegroundColor = ConsoleColor.Green;
+            Console.Write($"{name}");
+            Console.ForegroundColor = ConsoleColor.White;
+            Console.Write("!");
+            Wait(2);
+        }
+
+        private static void Wait(float timeToWaitInSeconds)
+        {
+            Thread.Sleep((int)(timeToWaitInSeconds * 1000));
+        }
         private static string AskForPlayerName()
         {
             string name = string.Empty;
