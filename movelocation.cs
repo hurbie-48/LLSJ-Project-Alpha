@@ -241,9 +241,10 @@ public static class MoveLocation
 
             ShowCompass(currentLocation);
 
-            Console.WriteLine("Enter a direction to move, 'shop' to browse a shop here, or 'quit' to stop exploring.");
+            Console.WriteLine("Enter a direction, 'shop', 'battle', or 'quit'.");
             Console.Write("> ");
             string? input = Console.ReadLine();
+            string command = input?.Trim().ToLower() ?? "";
 
             // @TODO: refactor to switch expression
             if (input != null && input.Trim().ToLower() is "quit" or "exit")
@@ -254,7 +255,19 @@ public static class MoveLocation
 
             if (currentLocation.HasShop && input != null && input.Equals("shop"))
             {
-                Shop.Enter(player);
+                if (currentLocation.MonsterLivingHere == null)
+                {
+                    Console.WriteLine("There is no monster here to fight.");
+                    Thread.Sleep(1500);
+                    continue;
+                }
+
+                CombatResult result = StartLocationCombat(player, currentLocation);
+                if (result == CombatResult.PlayerDefeated)
+                {
+                    exploring = false;
+                }
+
                 continue;
             }
 
@@ -280,8 +293,40 @@ public static class MoveLocation
                 Console.ResetColor();
                 Thread.Sleep(3000);
             }
+            else
+            {
+                player.CurrentLocation = currentLocation;
+            }
         }
 
         return currentLocation;
+    }
+
+    // Winning clears the location; fleeing leaves the monster there for a later visit.
+    private static CombatResult StartLocationCombat(Player player, Location location)
+    {
+        if (location.MonsterLivingHere == null)
+        {
+            return CombatResult.Fled;
+        }
+
+        Monster monster = location.MonsterLivingHere;
+        CombatResult result = new CombatManager().StartCombat(player, monster);
+
+        if (result == CombatResult.Won)
+        {
+            location.MonsterLivingHere = null;
+            Console.ForegroundColor = ConsoleColor.Green;
+            Console.WriteLine($"The {location.Name} is safe for now.");
+            Console.ResetColor();
+            Console.WriteLine("Press Enter to continue exploring...");
+            Console.ReadLine();
+        }
+        else if (result == CombatResult.PlayerDefeated)
+        {
+            Console.WriteLine("Your adventure ends here.");
+        }
+
+        return result;
     }
 }

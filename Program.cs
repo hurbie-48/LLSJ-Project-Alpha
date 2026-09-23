@@ -1,5 +1,7 @@
 ﻿using LLSJ_Project_Alpha.Entities;
 
+using LLSJ_Project_Alpha;
+
 namespace LLSJProjectAlpha
 {
     public class Program
@@ -16,6 +18,7 @@ namespace LLSJProjectAlpha
             player.CurrentHitPoints = 100;
             player.MaximumHitPoints = 100;
             Location startingLocation = World.LocationByID(World.LOCATION_ID_HOME)!;
+            player.CurrentLocation = startingLocation;
             MoveLocation.ExploreLoop(startingLocation, player);
         }
 
