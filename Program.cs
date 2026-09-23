@@ -23,6 +23,13 @@ namespace LLSJProjectAlpha
         }
 
         // Prints the opening title/story blurb for the game.
+        public static string Capitalize(string name)
+        {
+            if (string.IsNullOrEmpty(name))
+                return name;
+
+            return char.ToUpper(name[0]) + name[1..];
+        }
         private static void ShowIntro()
         {
             Console.ForegroundColor = ConsoleColor.Blue;
@@ -92,7 +99,7 @@ __/\\\______________/\\\_________________/\\\\\\\\\\\________/\\\\\\\\\\\_
                 }
             }
 
-            return name;
+            return Capitalize(name);
         }
     }
 }
